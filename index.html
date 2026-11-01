@@ -384,10 +384,11 @@ function syncYouTubeThumb(thumb,offset,visible,preload=false){
  if(thumb._ytWanted&&!thumb._ytPlaying){thumb._ytPlaying=true;player.playVideo()}
  else if(!thumb._ytWanted&&thumb._ytPlaying&&thumb._ytPrimed){thumb._ytPlaying=false;player.pauseVideo()}
 }
-const SHOWCASE_WAIT_LIMIT=8000;
+const SHOWCASE_WAIT_LIMIT=8000,SHOWCASE_NOTICE_DELAY=3000;
 function updateShowcaseStatus(thumb){
  const status=thumb.querySelector('.youtube-status');if(!status)return;
- status.hidden=!thumb._ytVisible||thumb._ytEnded||(!thumb._ytFailed&&!thumb._ytBlocked&&thumb._ytPrimed&&thumb._ytState===1&&!thumb._seekPending);
+ const now=performance.now();if(thumb._ytVisible&&!thumb._ytWaitSince)thumb._ytWaitSince=now;
+ status.hidden=!thumb._ytVisible||thumb._ytEnded||now-thumb._ytWaitSince<SHOWCASE_NOTICE_DELAY;
  const message=thumb._ytFailed?'영상을 불러오지 못했습니다. 다음 장면은 계속 재생됩니다.':thumb._ytBlocked?'영상 재생 버튼을 누르거나 다음 장면으로 이동할 수 있습니다.':'영상을 불러오는 중입니다. 잠시 기다리거나 다음 장면으로 이동할 수 있습니다.';
  const text=status.querySelector('[role="status"]');if(text.textContent!==message)text.textContent=message;
  status.querySelector('[data-youtube-play]').hidden=!thumb._ytReady||thumb._ytFailed||!(thumb._ytBlocked||thumb._ytState===2);
